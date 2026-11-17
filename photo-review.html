@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Photo review</title>
+  <style>
+    :root{color-scheme:dark;--bg:#171816;--panel:#20211e;--line:#343630;--muted:#9c9e95;--text:#f2f0e9;--accent:#d99a65;--danger:#e58a76;--topbar-height:51px}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 "Segoe UI",Arial,sans-serif}
+    button,input{font:inherit}button{color:inherit;cursor:pointer}button:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+    .top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:24px;padding:14px 24px;background:#1b1c19ed;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+    .brand{font-size:15px;font-weight:650;letter-spacing:.01em;white-space:nowrap}.brand span{color:var(--accent)}.folder{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+    .search{width:min(300px,30vw);padding:9px 12px;border:1px solid var(--line);border-radius:7px;background:#151613;color:var(--text)}
+    .toolbar{position:sticky;top:var(--topbar-height);z-index:4;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 24px;background:var(--bg);border-bottom:1px solid var(--line)}.count{color:var(--muted);margin-right:auto}.count strong{color:var(--text);font-weight:600}.btn{border:1px solid var(--line);background:var(--panel);padding:8px 12px;border-radius:7px}.btn:hover:not(:disabled){border-color:#65675f;background:#292a26}.btn:disabled{opacity:.42;cursor:default}.btn.primary{color:#221910;background:var(--accent);border-color:var(--accent);font-weight:650}.btn.danger{border-color:#75483e;color:#f0ad9b}.btn.danger:hover:not(:disabled){background:#3b2824}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:14px;padding:0 24px 92px}.group-head{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:10px;padding:8px 2px;border-bottom:1px solid var(--line);color:var(--text)}.group-head strong{font-size:13px;font-weight:600}.group-head label{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px;cursor:pointer}.group-head input{margin:0;accent-color:var(--accent)}.card{position:relative;overflow:hidden;min-width:0;border:1px solid var(--line);border-radius:9px;background:var(--panel);transition:border-color .15s,transform .15s}.card:hover{border-color:#66675f;transform:translateY(-2px)}.card.marked{border:2px solid var(--accent)}.card.current{box-shadow:0 0 0 2px var(--text)}.keyhint{margin-left:10px;color:var(--muted);font-size:12px}
+    .preview{height:154px;display:grid;place-items:center;background:#10110f;overflow:hidden;cursor:zoom-in}.preview img,.preview video{width:100%;height:100%;object-fit:contain}.preview audio{width:calc(100% - 18px)}.preview iframe{width:100%;height:100%;border:0;background:white}.filemark{display:grid;place-items:center;gap:7px;color:var(--muted);font-size:12px}.filemark b{font-size:24px;font-weight:650;letter-spacing:.04em;color:#c6c3b9}.meta{padding:10px 11px 11px}.filename{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.sub{display:flex;justify-content:space-between;margin-top:4px;color:var(--muted);font-size:11px}.pick{position:absolute;top:9px;left:9px;width:22px;height:22px;margin:0;accent-color:var(--accent);cursor:pointer;filter:drop-shadow(0 1px 3px #000)}.open{position:absolute;right:8px;top:8px;padding:5px 8px;border:1px solid #ffffff35;border-radius:5px;background:#10110fc9;color:#fff;text-decoration:none;font-size:11px;opacity:0}.card:hover .open,.open:focus-visible{opacity:1}
+    .empty{grid-column:1/-1;display:grid;place-content:center;min-height:45vh;color:var(--muted);text-align:center}.empty strong{font-size:18px;color:var(--text);font-weight:550}.empty p{margin:8px 0}
+    .selection{position:fixed;z-index:4;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:18px;min-height:66px;padding:10px 24px;background:#20211ef2;border-top:1px solid var(--line);backdrop-filter:blur(12px)}.selection span{color:var(--muted)}
+    dialog{width:min(520px,calc(100% - 32px));padding:0;color:var(--text);border:1px solid #4b4c45;border-radius:12px;background:#22231f;box-shadow:0 24px 90px #0009}dialog::backdrop{background:#0009}.dialog-body{padding:22px}.dialog-body h2{margin:0 0 8px;font-size:19px}.dialog-body p{margin:0;color:var(--muted)}.names{max-height:200px;overflow:auto;margin:16px 0;padding:10px 12px;border-radius:7px;background:#181916;color:#d3d0c7;font:12px/1.7 Consolas,monospace}.dialog-actions{display:flex;justify-content:flex-end;gap:9px}.status{position:fixed;right:20px;bottom:82px;z-index:5;max-width:min(420px,calc(100% - 40px));padding:11px 15px;border:1px solid var(--line);border-radius:8px;background:#272823;box-shadow:0 8px 30px #0007}.status[hidden]{display:none}
+    @media(max-width:650px){:root{--topbar-height:98px}.top{gap:12px;padding:12px 14px;flex-wrap:wrap}.folder{order:3;flex-basis:100%}.search{width:44vw}.toolbar{padding:10px 14px;gap:8px}.grid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:9px;padding:0 14px 88px}.preview{height:130px}.selection{justify-content:space-between;gap:8px;padding:10px 14px}.selection .btn{padding:8px}}
+  </style>
+</head>
+<body>
+  <header class="top"><div class="brand">PHOTO <span>REVIEW</span></div><div class="folder">C:\Users\ThomasCHAFFANJON\Downloads\Photos</div><input id="search" class="search" type="search" placeholder="Find a file…" aria-label="Find files"></header>
+  <section class="toolbar" aria-label="Gallery controls"><div class="count" id="count">Loading folder…</div><button class="btn" id="selectVisible">Select this screen</button><button class="btn" id="clear">Clear selection</button><button class="btn" id="sort">Name A–Z</button></section>
+  <main class="grid" id="grid" aria-live="polite"></main>
+  <footer class="selection"><span id="selectedCount">Nothing selected</span><button class="btn danger" id="delete" disabled>Move to Recycle Bin</button></footer>
+  <div class="status" id="status" role="status" hidden></div>
+  <dialog id="confirm"><div class="dialog-body"><h2>Move these files to the Recycle Bin?</h2><p id="confirmIntro"></p><div class="names" id="names"></div><div class="dialog-actions"><button class="btn" id="cancel">Cancel</button><button class="btn danger" id="confirmDelete">Move to Recycle Bin</button></div></div></dialog>
+  <script>
+    const grid=document.querySelector('#grid'),search=document.querySelector('#search'),count=document.querySelector('#count'),selectedCount=document.querySelector('#selectedCount'),removeButton=document.querySelector('#delete'),dialog=document.querySelector('#confirm');
+    let files=[],selected=new Set(),selectedCounts=new Map(),fileGroups=new Map(),fileByPath=new Map(),sortNewest=false,currentPath=null;
+    const fmt=n=>n<1024?`${n} B`:n<1048576?`${(n/1024).toFixed(0)} KB`:`${(n/1048576).toFixed(1)} MB`;
+    const url=f=>`/file?path=${encodeURIComponent(f.path)}`;
+    const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function preview(f){const src=url(f);if(f.mime.startsWith('image/'))return `<img loading="lazy" src="${src}" alt="${esc(f.name)}">`;if(f.mime.startsWith('video/'))return `<video controls preload="metadata" src="${src}"></video>`;if(f.mime.startsWith('audio/'))return `<audio controls preload="metadata" src="${src}"></audio>`;if(f.mime==='application/pdf')return `<iframe loading="lazy" title="${esc(f.name)}" src="${src}"></iframe>`;return `<div class="filemark"><b>${esc(f.type.slice(0,6))}</b><span>${esc(f.mime)}</span></div>`}
+    function visible(){const q=search.value.trim().toLocaleLowerCase(),list=files.filter(f=>!q||f.name.toLocaleLowerCase().includes(q)||f.path.toLocaleLowerCase().includes(q)||f.type.toLocaleLowerCase().includes(q));return sortNewest?list.sort((a,b)=>(b.date||'').localeCompare(a.date||'')||b.path.localeCompare(a.path)):list}
+    function render(focusCurrent=false){
+      const list=visible(),groups=new Map();
+      for(const f of list){const key=f.date||'';if(!groups.has(key))groups.set(key,[]);groups.get(key).push(f)}
+      if(!list.some(f=>f.path===currentPath))currentPath=list[0]?.path||null;
+      const dates=[...groups.keys()].sort((a,b)=>b.localeCompare(a));
+      grid.innerHTML=dates.length?dates.map(date=>{
+        const items=groups.get(date),all=fileGroups.get(date)||[],marked=selectedCounts.get(date)||0;
+        items.sort((a,b)=>sortNewest?b.path.localeCompare(a.path):a.path.localeCompare(b.path));
+        const title=date?new Date(`${date}T12:00:00`).toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}):'Capture date unavailable';
+        const action=date?'Select date':'Select undated';
+        return `<div class="group-head"><strong>${esc(title)}</strong><label><input class="date-pick" type="checkbox" data-date="${esc(date)}" aria-label="${action} group, ${all.length} files" ${marked===all.length?'checked':''}>${action} · ${all.length}</label></div>${items.map((f,i)=>`<article class="card ${selected.has(f.path)?'marked':''} ${f.path===currentPath?'current':''}" data-path="${esc(f.path)}" data-date="${esc(date)}" tabindex="${f.path===currentPath?'0':'-1'}" aria-current="${f.path===currentPath?'true':'false'}"><div class="preview">${preview(f)}</div><input class="pick" type="checkbox" aria-label="Select ${esc(f.name)}" ${selected.has(f.path)?'checked':''}><a class="open" href="${url(f)}" target="_blank" rel="noopener">Open file</a><div class="meta"><div class="filename" title="${esc(f.path)}">${esc(f.name)}</div><div class="sub"><span>${esc(f.type)} · ${fmt(f.size)}</span><span>${i+1} / ${items.length}</span></div></div></article>`).join('')}`
+      }).join(''):`<div class="empty"><strong>${files.length?'No files match that search':'This folder is empty'}</strong><p>${files.length?'Try a different name or file type.':'No files were found in the selected folder.'}</p></div>`;
+      grid.querySelectorAll('.date-pick').forEach(box=>{const all=fileGroups.get(box.dataset.date)||[],marked=selectedCounts.get(box.dataset.date)||0;box.indeterminate=marked>0&&marked<all.length});
+      count.innerHTML=`<strong>${list.length.toLocaleString()}</strong> shown <span>· ${files.length.toLocaleString()} files total</span><span class="keyhint">· Arrow keys move · Space selects</span>`;
+      updateSelectedCount();
+      if(focusCurrent&&currentPath){const card=grid.querySelector(`[data-path="${CSS.escape(currentPath)}"]`);card?.focus();card?.scrollIntoView({block:'nearest'})}
+    }
+    function updateSelectedCount(){selectedCount.textContent=selected.size?`${selected.size.toLocaleString()} selected`:'Nothing selected';removeButton.disabled=!selected.size}
+    function indexFiles(){fileGroups=new Map();fileByPath=new Map();for(const f of files){const date=f.date||'';if(!fileGroups.has(date))fileGroups.set(date,[]);fileGroups.get(date).push(f);fileByPath.set(f.path,f)}}
+    function setSelected(path,on,date=fileByPath.get(path)?.date||''){if(selected.has(path)===on)return;if(on){selected.add(path);selectedCounts.set(date,(selectedCounts.get(date)||0)+1)}else{selected.delete(path);const n=(selectedCounts.get(date)||1)-1;if(n)selectedCounts.set(date,n);else selectedCounts.delete(date)}}
+    function setCurrent(path,focus=false){grid.querySelector('.card.current')?.classList.remove('current');const old=grid.querySelector('.card[aria-current="true"]');if(old){old.tabIndex=-1;old.setAttribute('aria-current','false')}currentPath=path;const card=grid.querySelector(`[data-path="${CSS.escape(path)}"]`);if(card){card.classList.add('current');card.tabIndex=0;card.setAttribute('aria-current','true');if(focus){card.focus();card.scrollIntoView({block:'nearest'})}}}
+    function updateGroupCheck(date){const box=[...grid.querySelectorAll('.date-pick')].find(item=>item.dataset.date===date);if(!box)return;const total=fileGroups.get(date)?.length||0,marked=selectedCounts.get(date)||0;box.checked=marked===total;box.indeterminate=marked>0&&marked<total}
+    function toggle(path,on){const card=grid.querySelector(`[data-path="${CSS.escape(path)}"]`);setCurrent(path);setSelected(path,on,card?.dataset.date||'');card?.classList.toggle('marked',on);const checkbox=card?.querySelector('.pick');if(checkbox)checkbox.checked=on;updateSelectedCount();updateGroupCheck(card?.dataset.date||'')}
+    grid.addEventListener('change',e=>{if(e.target.matches('.pick'))toggle(e.target.closest('.card').dataset.path,e.target.checked);if(e.target.matches('.date-pick')){const date=e.target.dataset.date,on=e.target.checked;for(const f of fileGroups.get(date)||[])setSelected(f.path,on,date);grid.querySelectorAll(`.card[data-date="${CSS.escape(date)}"]`).forEach(card=>{card.classList.toggle('marked',on);card.querySelector('.pick').checked=on});updateSelectedCount();updateGroupCheck(date)}});
+    grid.addEventListener('click',e=>{if(e.target.closest('a')||e.target.matches('input,video,audio,button'))return;const card=e.target.closest('.card');if(card&&e.target.closest('.preview')){const checkbox=card.querySelector('.pick');toggle(card.dataset.path,!checkbox.checked)}});
+    document.addEventListener('keydown',e=>{if(dialog.open)return;const typing=e.target.closest('input[type="search"],textarea,select,audio,video,[contenteditable="true"]');if(e.key==='Delete'&&selected.size&&!typing){e.preventDefault();removeButton.click();return}if(typing||e.target.matches('button,.pick,.date-pick'))return;const list=visible();if(!list.length)return;const index=Math.max(0,list.findIndex(f=>f.path===currentPath)),columns=getComputedStyle(grid).gridTemplateColumns.split(' ').length,step={ArrowLeft:-1,ArrowRight:1,ArrowUp:-columns,ArrowDown:columns}[e.key];if(step!==undefined){e.preventDefault();setCurrent(list[Math.max(0,Math.min(list.length-1,index+step))].path,true)}else if(e.code==='Space'){e.preventDefault();toggle(list[index].path,!selected.has(list[index].path))}});
+    search.addEventListener('input',render);
+    document.querySelector('#selectVisible').addEventListener('click',()=>{const top=document.querySelector('.toolbar').getBoundingClientRect().bottom,bottom=document.querySelector('.selection').getBoundingClientRect().top,dates=new Set();let added=0;grid.querySelectorAll('.card').forEach(card=>{const rect=card.getBoundingClientRect();if(rect.top>=top&&rect.bottom<=bottom){if(!selected.has(card.dataset.path))added++;setSelected(card.dataset.path,true,card.dataset.date);card.classList.add('marked');card.querySelector('.pick').checked=true;dates.add(card.dataset.date)}});dates.forEach(updateGroupCheck);updateSelectedCount();showStatus(`${added} fully visible file${added===1?'':'s'} selected.`)});
+    document.querySelector('#clear').addEventListener('click',()=>{selected.clear();selectedCounts.clear();grid.querySelectorAll('.card').forEach(card=>{card.classList.remove('marked');card.querySelector('.pick').checked=false});grid.querySelectorAll('.date-pick').forEach(box=>{box.checked=false;box.indeterminate=false});updateSelectedCount()});
+    document.querySelector('#sort').addEventListener('click',e=>{sortNewest=!sortNewest;e.currentTarget.textContent=sortNewest?'Newest first':'Name A–Z';render()});
+    removeButton.addEventListener('click',()=>{const chosen=files.filter(f=>selected.has(f.path));document.querySelector('#confirmIntro').textContent=`${chosen.length} file${chosen.length===1?'':'s'} will be sent to the Windows Recycle Bin and can be restored from there.`;document.querySelector('#names').textContent=chosen.slice(0,20).map(f=>f.path).join('\n')+(chosen.length>20?`\n… and ${chosen.length-20} more`:'' );dialog.showModal()});
+    document.querySelector('#cancel').addEventListener('click',()=>dialog.close());
+    document.querySelector('#confirmDelete').addEventListener('click',async e=>{
+      const button=e.currentTarget;
+      button.disabled=true;
+      button.textContent='Moving…';
+      try{
+        const response=await fetch('/api/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paths:[...selected]})});
+        const result=await response.json();
+        if(!response.ok)throw Error(result.error||'Could not move files.');
+        const removed=new Set(result.removed);
+        files=files.filter(f=>!removed.has(f.path));selected.clear();selectedCounts.clear();indexFiles();dialog.close();render();
+        showStatus(`${removed.size} file${removed.size===1?'':'s'} moved to the Recycle Bin${result.failed.length?`; ${result.failed.length} could not be moved`:''}.${result.failed.length?' Check that another app is not using them.':''}`);
+      }catch(error){showStatus(error.message)}
+      finally{button.disabled=false;button.textContent='Move to Recycle Bin'}
+    });
+    function showStatus(text){const box=document.querySelector('#status');box.textContent=text;box.hidden=false;setTimeout(()=>box.hidden=true,5500)}
+    fetch('/api/files').then(r=>{if(!r.ok)throw Error('Could not read the folder.');return r.json()}).then(data=>{files=data;indexFiles();render()}).catch(error=>{grid.innerHTML=`<div class="empty"><strong>Could not load the folder</strong><p>${esc(error.message)}</p></div>`;count.textContent='Folder unavailable'});
+  </script>
+</body>
+</html>
